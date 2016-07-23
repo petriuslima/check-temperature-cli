@@ -17,24 +17,16 @@ if (! empty($argv[2])) {
     $country = $argv[2];
 }
 
-$methodData = http_build_query(
-    array(
-        'q' => $city . ',' . $country,
-        'appid' => $config['appid'],
-        'units' => $config['units']
-    )
-);
+$queryData = [
+    'q' => $city . ',' . $country,
+    'appid' => $config['appid'],
+    'units' => $config['units']
+];
 
-$requestData = array('http' =>
-    array(
-        'method'  => 'GET'
-    )
-);
+$queryString = http_build_query($queryData);
 
-$context  = stream_context_create($requestData);
+$responseJson = file_get_contents($config['baseUrl'] . '?' . $queryString);
 
-$result = file_get_contents($config['baseUrl'] . '?' . $methodData, false, $context);
-
-$responseVO = json_decode($result);
+$responseVO = json_decode($responseJson);
 
 echo 'The current temperature in ' . ucwords($city) . ' is ' . $responseVO->main->temp . 'º.' . PHP_EOL;
