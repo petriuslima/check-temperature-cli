@@ -1,33 +1,14 @@
-#!/usr/bin/php
-<?php
+#!/usr/bin/env bash
+city=$1
+country=$2
 
-$config = [
-    'baseUrl' => 'http://api.openweathermap.org/data/2.5/weather',
-    'appid' => '23a9744017bf02ed2d7ae1de269d5e93',
-    'units' => 'metric' // metric : celsius | imperial : fahrenheit | kelvin : is the default
-];
+if [ -z "$city" ]; then
+    echo "Please, type a city"
+    exit 
+fi
 
-if (empty($argv[1])) {
-    exit('The city name is required.');
-}
+if [ -z "$country" ]; then
+    country="br"
+fi
 
-$city = $argv[1];
-
-$country = 'br';
-if (! empty($argv[2])) {
-    $country = $argv[2];
-}
-
-$queryData = [
-    'q' => $city . ',' . $country,
-    'appid' => $config['appid'],
-    'units' => $config['units']
-];
-
-$queryString = http_build_query($queryData);
-
-$responseJson = file_get_contents($config['baseUrl'] . '?' . $queryString);
-
-$responseVO = json_decode($responseJson);
-
-echo 'The current temperature in ' . ucwords($city) . ' is ' . $responseVO->main->temp . 'º.' . PHP_EOL;
+curl -sS "http://api.openweathermap.org/data/2.5/weather?q=$city,$country&appid=23a9744017bf02ed2d7ae1de269d5e93&units=metric" | grep -Eoi "temp\":.+,\"pre" | cut -c "7-" | cut -d , -f 1
